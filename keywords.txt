@@ -1,0 +1,22 @@
+###########################################
+# Syntax Coloring Map For ADS1115
+#             Version 1.0
+###########################################
+
+###########################################
+# Datatypes (KEYWORD1)
+###########################################
+CT8Z			KEYWORD1
+
+###########################################
+# Methods and Functions (KEYWORD2)
+###########################################
+begin			KEYWORD2
+analogWrite		KEYWORD2
+analogMix		KEYWORD2
+analogPulse		KEYWORD2
+analogPulseMix	KEYWORD2
+
+###########################################
+# Constants (LITERAL1)
+###########################################
