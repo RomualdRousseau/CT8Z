@@ -16,19 +16,18 @@
 #ifndef CT8Z_h
 #define CT8Z_h
 
-class CT8Z
+#define PPM_MAX_CHANNELS	8
+
+class CT8ZClass
 {
-protected:
-	bool	m_inverted;
-
 public:
-	CT8Z(bool inverted = false);
+	CT8ZClass();
 
-	void begin();
-	void analogWrite(int channel, int value);
-	void analogMix(int channel, int value1, int value2, float mix);
-	void analogPulse(int channel, int value);
-	void analogPulseMix(int channel, int value1, int value2, float mix);
+	void begin(bool inverted = false);
+	
+	void analogWrite(char channel, int value);
+	void analogWrite(int values[], int matrix[][PPM_MAX_CHANNELS]);
 };
 
+static CT8ZClass CT8Z;
 #endif

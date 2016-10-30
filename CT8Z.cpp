@@ -21,29 +21,30 @@ const int PPMFreq_uS = 22500;		// PPM frame length total in uS
 const int Fixed_uS = 300;			// PPM frame padding LOW phase in uS
 
 const int pulseMin = 900;			// PPM Pulse widths in uS
-const int pulseMid = 1600;
-const int pulseMax = 2300;			
+const int pulseMax = 2300;
 
-volatile int PPM_array[9];
+volatile int PPM_array[PPM_MAX_CHANNELS + 1];
 
 /**************************************************************************/
 /*!
     @brief  Instantiates a new CT8Z class w/appropriate properties
 */
 /**************************************************************************/
-CT8Z::CT8Z(bool inverted)
+CT8ZClass::CT8ZClass()
 {
+#if defined(__AVR_ATmega1284__) || defined(__AVR_ATmega1284P__)
+	pinMode(12, OUTPUT);
+#elif defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
 	pinMode(10, OUTPUT);
+#endif
 
 	// Initialize 8 PPM channel array
 	char i = 0;
-	for(i = 0; i < 8; i++)
+	for(; i < PPM_MAX_CHANNELS; i++)
 	{
-		PPM_array[i] = pulseMid;
+		PPM_array[i] = (pulseMax + pulseMin) / 2;
 	}
-	PPM_array[i] = -1; // Mark end
-
-	m_inverted = inverted;
+	PPM_array[PPM_MAX_CHANNELS] = -1; // Mark end
 }
 
 /**************************************************************************/
@@ -51,9 +52,9 @@ CT8Z::CT8Z(bool inverted)
     @brief  Sets up the HW
 */
 /**************************************************************************/
-void CT8Z::begin()
+void CT8ZClass::begin(bool inverted)
 {
-	TCCR1A = m_inverted ? B00100001 : B00110001;	// Compare register B used in mode 3 with non-inverted / inverted PPM output
+	TCCR1A = inverted ? B00100001 : B00110001;		// Compare register B used in mode 3 with non-inverted / inverted PPM output
 	TCCR1B = B00010010;								// WGM13 & CS11 set to 1
 	TCCR1C = B00000000;								// All set to 0
 	TIMSK1 = B00000010;								// Interrupt on compare B
@@ -67,49 +68,27 @@ void CT8Z::begin()
     @brief  Write a value
 */
 /**************************************************************************/
-void CT8Z::analogWrite(int channel, int value)
+void CT8ZClass::analogWrite(char channel, int value)
 {
-	float a = PPM_array[channel];
-	float b = pulseMin + value * ((pulseMax - pulseMin) / 1023.0);
-	PPM_array[channel] = int(a * 0.98 + b * 0.02); // Complementary filter
+	PPM_array[channel] = map(value, 0, 1023, pulseMin, pulseMax);
 }
 
 /**************************************************************************/
 /*!
-    @brief  Write a value mixed with another
+    @brief  Mix values with a matrix
 */
 /**************************************************************************/
-void CT8Z::analogMix(int channel, int value1, int value2, float mix)
+void CT8ZClass::analogWrite(int values[], int matrix[][PPM_MAX_CHANNELS])
 {
-	analogWrite(channel, value1 * mix + (1.0 - mix) * value2);
-}
-
-/**************************************************************************/
-/*!
-    @brief  Write a value
-*/
-/**************************************************************************/
-void CT8Z::analogPulse(int channel, int value)
-{
-	int pulseValue = pulseMin + value * ((pulseMax - pulseMin) / 1023.0);
-	if(PPM_array[channel] < pulseValue)
+	for(int i  = 0; i < PPM_MAX_CHANNELS; i++)
 	{
-		PPM_array[channel]+=10;
+		long s = 0;
+		for(int j = 0; j < (PPM_MAX_CHANNELS + 1); j++)
+		{
+			s += long(values[j] - 512) * long(matrix[j][i]) / 256;
+		}
+		analogWrite(i, constrain(s, -512, 511) + 512);
 	}
-	else if(PPM_array[channel] > pulseValue)
-	{
-		PPM_array[channel]-=10;
-	}
-}
-
-/**************************************************************************/
-/*!
-    @brief  Write a value mixed with another
-*/
-/**************************************************************************/
-void CT8Z::analogPulseMix(int channel, int value1, int value2, float mix)
-{
-	analogPulse(channel, value1 * mix + (1.0 - mix) * value2);
 }
 
 // *********************** BEGIN TIMER **************************

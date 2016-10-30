@@ -1,22 +1,33 @@
 #include <CT8Z.h>
 
-CT8Z ct8z;
+int mixes[9][8] = 
+{
+  {+256,    0,    0, -256,    0,  +64,    0,    0},
+  {   0, +256,    0,    0,    0,    0,    0,    0},
+  {   0,    0, +256,    0,    0,    0,    0,    0},
+  {   0,    0,    0, +256,    0,    0,    0,    0},
+  {   0,    0,    0,    0, +256,    0,    0,    0},
+  {   0,    0,    0,    0,    0, +256,    0,    0},
+  {   0,    0,    0,    0,    0,    0, +256,    0},
+  {   0,    0,    0,    0,    0,    0,    0, +256},
+  {   0,    0,    0,    0,    0,    0,    0,    0}
+};
+
+int values[9] =
+{
+  512, 512, 512, 512, 512, 512, 512, 512, 1023
+};
 
 void setup()
 {
-	pinMode(2, INPUT);
-	pinMode(3, INPUT);
-	pinMode(4, INPUT);
-	pinMode(7, INPUT);
-	pinMode(8, INPUT);
-
-	ct8z.begin();	
+	CT8Z.begin();	
 }
 
 void loop()
 {
-	ct8z.analogPulse(0, (digitalRead(2) == HIGH) ? 1023 : ((digitalRead(3) == HIGH) ? 0 : 512));
-	ct8z.analogPulse(1, (digitalRead(4) == HIGH) ? 1023 : 0);
-	ct8z.analogPulse(2, (digitalRead(7) == HIGH) ? 1023 : ((digitalRead(8) == HIGH) ? 0 : 512));
+  values[0] = analogRead(A0);
+  values[1] = analogRead(A1);
+  CT8Z.analogWrite(values, mixes);
 }
+
 
