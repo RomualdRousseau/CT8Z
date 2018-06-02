@@ -1,6 +1,6 @@
 #include <CT8Z.h>
 
-int mixes[9][8] = 
+int mixes[PPM_MAX_CHANNELS][PPM_MAX_CHANNELS] = 
 {
   {+256,    0,    0, -256,    0,  +64,    0,    0},
   {   0, +256,    0,    0,    0,    0,    0,    0},
@@ -9,13 +9,12 @@ int mixes[9][8] =
   {   0,    0,    0,    0, +256,    0,    0,    0},
   {   0,    0,    0,    0,    0, +256,    0,    0},
   {   0,    0,    0,    0,    0,    0, +256,    0},
-  {   0,    0,    0,    0,    0,    0,    0, +256},
-  {   0,    0,    0,    0,    0,    0,    0,    0}
+  {   0,    0,    0,    0,    0,    0,    0, +256}
 };
 
-int values[9] =
+int values[PPM_MAX_CHANNELS] =
 {
-  512, 512, 512, 512, 512, 512, 512, 512, 1023
+  512, 512, 512, 512, 512, 512, 512, 512
 };
 
 void setup()
@@ -29,5 +28,4 @@ void loop()
   values[1] = analogRead(A1);
   CT8Z.analogWrite(values, mixes);
 }
-
 

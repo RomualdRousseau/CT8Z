@@ -82,12 +82,12 @@ void CT8ZClass::analogWrite(int values[], int matrix[][PPM_MAX_CHANNELS])
 {
 	for(int i  = 0; i < PPM_MAX_CHANNELS; i++)
 	{
-		long s = 0;
-		for(int j = 0; j < (PPM_MAX_CHANNELS + 1); j++)
+		long v = 0;
+		for(int j = 0; j < PPM_MAX_CHANNELS; j++)
 		{
-			s += long(values[j] - 512) * long(matrix[j][i]) / 256;
+			v += long(values[j] - 512) * long(matrix[j][i]) / 256;
 		}
-		analogWrite(i, constrain(s, -512, 511) + 512);
+		analogWrite(i, constrain(v, -512, 511) + 512);
 	}
 }
 

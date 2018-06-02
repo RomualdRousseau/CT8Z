@@ -1,5 +1,5 @@
 ###########################################
-# Syntax Coloring Map For ADS1115
+# Syntax Coloring Map For CT8Z
 #             Version 1.0
 ###########################################
 
